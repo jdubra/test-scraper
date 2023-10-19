@@ -32,7 +32,7 @@ const scraperObject = {
         filteredImages.push(imageClassName);
       }
     }
-    filteredImages = filteredImages.slice(0, -5)
+    filteredImages = filteredImages.slice(0, -5).slice(0,4)
     let plays = [];
     
     console.log('Get all plays information...');
@@ -46,22 +46,25 @@ const scraperObject = {
       console.log('Image found, clicking on it...');
       await image.click();
       console.log('Image clicked, waiting for title...');      
-      await page.waitForSelector('h1[class*="titulo"]');
       // Find play's title
+      await page.waitForSelector('h1[class*="titulo"]');
       const title = await page.evaluate(() => {
         const titleElement = document.querySelector('[class*="titulo"]');
         console.log('titleElement is:');
         console.log(titleElement);
         return titleElement ? titleElement.innerText : '';
       });
+
       // Find play's theater
+      await page.waitForSelector('[class*="subtitulo"]');
       const theater = await page.evaluate(() => {
         const theaterElement = document.querySelector('[class*="subtitulo"]');
         console.log('theaterElement is:');
         console.log(theaterElement);
         return theaterElement ? theaterElement.innerText : '';
       });
-      // Find b tag with synopsis title in content
+
+      // Find play's synopsis
       const synopsis = await page.evaluate(() => {
         // wait 1 second for synopsis to load
         setTimeout(() => {}, 1000);
@@ -78,7 +81,49 @@ const scraperObject = {
         }
         return synopsisTitle ? synopsisTitle.parentElement.parentNode.getElementsByTagName('span')[0].innerHTML : ''
       });
-      plays.push({ title, theater, synopsis });
+
+      // Find play's image
+      const imageURL = await page.evaluate(() => {
+        console.log('Getting image URL...')
+        const imageElement = document.querySelector('img[class*="imgobradesktop"]');
+        return imageElement ? imageElement.src : '';
+      });
+
+      // // Find play's dates
+      const dates = await page.evaluate(() => {
+        const playItemsElements = document.querySelectorAll('p[class*="items-obra-p"]');
+        console.log('playItemsElements is:');
+        console.log(playItemsElements);
+        const datesTitle = [...playItemsElements].find((element) => element.innerText === 'Días de función' || element.innerText ==='Día de función' );
+        console.log('datesTitle is:');
+        console.log(datesTitle);
+        let siblingElements = datesTitle.parentNode.getElementsByTagName('p');
+        console.log('siblingElements is:');
+        console.log(siblingElements);
+        if ([...siblingElements].length === 1) {
+          console.log('Many dates case')
+          siblingElements = datesTitle.parentNode.getElementsByTagName('div');
+          const hoverLink = siblingElements[2]
+          event = new MouseEvent('mouseenter')
+          hoverLink.dispatchEvent(event)
+          const datesString = document.querySelector('div[class*="dias__funcion__detalle"]').innerText
+          console.log('Dates String')
+          console.log(datesString)
+          return datesString.split('\n');
+        } else {
+          console.log('One date case')
+          return siblingElements[1].innerText.split('\n')
+        }
+      });
+      
+      // Find play's prices
+
+      // Find play's categories
+
+      // Find where to buy tickets
+      console.log('Info extracted is:')
+      console.log({ title, theater, synopsis, imageURL, dates })
+      plays.push({ title, theater, synopsis, imageURL, dates });
       
       // Go back to plays page and select proper filter
       await page.goto(this.url, { timeout: 0 });

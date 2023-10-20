@@ -1,9 +1,21 @@
+const getPlaysInfo = async ( urls, browser ) => {
+  const plays = []
+  for (let url of urls) {
+    play = await getPlayInfo(url, browser)
+    plays.push(play)
+  }
+  return plays
+}
+
 const getPlayInfo = async ( url, browser ) => {
-  const pageURL = `https://www.plateanet.com${url}`;
-  let page = await browser.newPage();
+  const page = await browser.newPage();
   page.setDefaultNavigationTimeout(0);
+  const pageURL = `https://www.plateanet.com${url}`;
+  console.log('Extracting info from:', pageURL);
   await page.goto(pageURL);
-  await page.waitForNavigation({ waitUntil: 'networkidle0' });
+  await page.waitForSelector('#img2sala', { timeout: 0 });
+  await page.waitForTimeout(3000);
+  console.log('Page done loading')
 
   const title = await page.evaluate(() => {
     const titleElement = document.querySelector('[class*="titulo"]');
@@ -80,6 +92,18 @@ const getPlayInfo = async ( url, browser ) => {
     }
   });
 
+  console.log('Extracted info is:')
+  console.log({
+    title,
+    theater,
+    synopsis,
+    imageURL,
+    dates,
+    prices,
+    category,
+    pageURL,
+  })
+
   await page.close();
 
   return {
@@ -91,7 +115,7 @@ const getPlayInfo = async ( url, browser ) => {
     prices,
     category,
     pageURL,
-  }
+  };
 }
 
-module.exports = getPlayInfo;
+module.exports = getPlaysInfo;

@@ -12,7 +12,8 @@ const getBatches = (rawUrls) => {
   const batches = [];
 
   for (let i = 0; i < WORKERS_COUNT; i += 1) {
-    batches.push(urls.slice(0, batchSize));
+    logger.log(`Batch ${i} from index ${i * batchSize}`);
+    batches.push(urls.slice(i * batchSize, i * batchSize + batchSize));
   }
 
   return batches;

@@ -1,4 +1,6 @@
 const logger = require('../utils/logger')('PAGE SCRAPER');
+
+const getPlaysInfo = require('../helpers/getPlaysInfo');
 const getBatches = require('./batches');
 
 const selectFilters = async (page) => {
@@ -23,6 +25,9 @@ const scraperObject = {
 
     // Select the proper filter
     await selectFilters(page);
+
+    await page.setDefaultTimeout(0);
+    await page.waitForNetworkIdle();
 
     // Get all plays
     logger.log('Get all play images...');
@@ -72,11 +77,17 @@ const scraperObject = {
       urls.push(url);
     }
 
-    urls = urls.filter((a) => !!a);
+    urls = Array.from(new Set(urls.filter((a) => !!a)));
 
-    logger.log(`Done, got ${urls.length} valid URLs`);
+    logger.log(`Done, got ${urls.length} valid unique URLs`);
 
-    getBatches(urls);
+    const batches = getBatches(urls);
+
+    const workers = batches.map((batch, index) =>
+      getPlaysInfo(batch, browser, index),
+    );
+
+    await Promise.all(workers);
   },
 };
 

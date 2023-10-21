@@ -12,28 +12,18 @@ const selectFilters = async (page) => {
 const scraperObject = {
   url: 'https://www.plateanet.com/lista-obras',
   async scraper(browser) {
-    // Open browser
     const page = await browser.newPage();
-    // Navigate to site
     logger.log(`Navigating to ${this.url}...`);
     await page.goto(this.url, { timeout: 0 });
     logger.log('Page loaded, finding selector...');
-    // Wait for page to load
     await page.waitForSelector('[class*="obras__resultados__img"]');
     await page.waitForTimeout(3000);
     logger.log('Selector found, selecting filters...');
-
-    // Select the proper filter
     await selectFilters(page);
-
-    await page.setDefaultTimeout(0);
-    await page.waitForNetworkIdle();
-
-    // Get all plays
+    await page.waitForTimeout(3000);
     logger.log('Get all play images...');
     const allImages = await page.$$('img');
     const playImages = [...allImages].slice(2);
-    // Filter all images whose className is empty
     let filteredImages = [];
 
     for (const image of playImages) {
@@ -82,6 +72,8 @@ const scraperObject = {
     logger.log(`Done, got ${urls.length} valid unique URLs`);
 
     const batches = getBatches(urls);
+
+    logger.log(`Got ${batches.length} batches`);
 
     const workers = batches.map((batch, index) =>
       getPlaysInfo(batch, browser, index),

@@ -6,7 +6,7 @@ const getBatches = (rawUrls) => {
   const logger = getLogger('BATCHES');
   const urls = [...rawUrls];
 
-  logger.log(`Got ${urls.length} URLs`);
+  logger.log(`Got ${urls.length} URLs, splitting into ${WORKERS_COUNT} batches`);
 
   const batchSize = Math.ceil(urls.length / WORKERS_COUNT);
   const batches = [];

@@ -31,22 +31,22 @@ const getPlayInfo = async (url, browser, logger) => {
     return theaterElement ? theaterElement.innerText : '';
   });
 
-  const synopsis = await page.evaluate(() => {
-    const synopsisTitleElements = document.querySelectorAll('b');
-    const synopsisTitle = [...synopsisTitleElements].find((element) => {
+  const description = await page.evaluate(() => {
+    const descriptionTitleElements = document.querySelectorAll('b');
+    const descriptionTitle = [...descriptionTitleElements].find((element) => {
       return element.innerText === 'Sinopsis';
     });
     if (
-      synopsisTitle &&
-      synopsisTitle.parentElement.parentNode.getElementsByTagName('span')
+      descriptionTitle &&
+      descriptionTitle.parentElement.parentNode.getElementsByTagName('span')
         .length > 1
     ) {
-      synopsisTitle.parentElement.parentNode
+      descriptionTitle.parentElement.parentNode
         .getElementsByTagName('span')[1]
         .childNodes[1].click();
     }
-    return synopsisTitle
-      ? synopsisTitle.parentElement.parentNode.getElementsByTagName('span')[0]
+    return descriptionTitle
+      ? descriptionTitle.parentElement.parentNode.getElementsByTagName('span')[0]
           .innerHTML
       : '';
   });
@@ -106,7 +106,7 @@ const getPlayInfo = async (url, browser, logger) => {
   logger.log({
     title,
     theater,
-    synopsis,
+    description,
     imageURL,
     dates,
     prices,
@@ -119,7 +119,7 @@ const getPlayInfo = async (url, browser, logger) => {
   return {
     title,
     theater,
-    synopsis,
+    description,
     imageURL,
     dates,
     prices,

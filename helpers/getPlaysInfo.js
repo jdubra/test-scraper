@@ -1,4 +1,5 @@
 const getLogger = require('../utils/logger');
+const parseDates = require('./parseDates');
 
 const getPlaysInfo = async (urls, browser, instanceId = 0) => {
   const plays = [];
@@ -95,7 +96,7 @@ const getPlayInfo = async (url, logger, page) => {
   });
 
   await page.waitForSelector('p[class*="items-obra-p"]', { timeout: 0 });
-  const dates = await page.evaluate(() => {
+  const unparsedDates = await page.evaluate(() => {
     const playItemsElements = document.querySelectorAll(
       'p[class*="items-obra-p"]',
     );
@@ -122,6 +123,7 @@ const getPlayInfo = async (url, logger, page) => {
       return []
     }
   });
+  const dates = parseDates(unparsedDates, 'plateanet');
 
   logger.log('Extracted info');
   logger.log({

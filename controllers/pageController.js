@@ -7,8 +7,8 @@ async function scrapeAll(browserInstance) {
   let browser;
   try {
     browser = await browserInstance;
-    // const shows = await teatroColonScraper.scraper(browser);
-    await plateanetScraper.scraper(browser);
+    await teatroColonScraper.scraper(browser);
+    // await plateanetScraper.scraper(browser);
   } catch (err) {
     logger.log('Could not resolve the browser instance => ', err);
   }

@@ -6,6 +6,12 @@ const Event = sequelize.define('events', {
   location: DataTypes.STRING,
   synopsis: DataTypes.TEXT,
   dates: DataTypes.ARRAY(DataTypes.STRING),
+  prices: DataTypes.STRING,
+  category: DataTypes.STRING,
+  pageUrl: {
+    type: DataTypes.STRING,
+    unique: true,
+  },
 }, {});
 
 module.exports = Event;

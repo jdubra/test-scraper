@@ -11,8 +11,10 @@ const getEvents = async ({ limit, offset }) => {
   });
 }
 
-const getAllEvents = async () => {
-  return EventModel.findAll();
+const getEvent = async (where) => {
+  return EventModel.findOne({
+    where,
+  });
 }
 
 const getEventById = async (id) => {
@@ -38,7 +40,7 @@ const deleteEvent = async (id) => {
 module.exports = {
   createEvent,
   getEvents,
-  getAllEvents,
+  getEvent,
   getEventById,
   updateEvent,
   deleteEvent,

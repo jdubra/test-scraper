@@ -1,17 +1,23 @@
 const getLogger = require('../utils/logger');
+const { EventsService } = require('../api/services');
 
 const getPlaysInfo = async (urls, browser, instanceId = 0) => {
-  const plays = [];
   const page = await browser.newPage();
   page.setDefaultNavigationTimeout(0);
   const logger = getLogger(`GETPLAY - ${instanceId}`);
   logger.log(`Start scraping ${urls.length} URLS`);
   for (let url of urls) {
     play = await getPlayInfo(url, logger, page);
-    plays.push(play);
+    await EventsService.createEvent({
+      title: play.title,
+      location: play.theater,
+      synopsis: play.description,
+      dates: play.dates,
+      prices: play.prices,
+      category: play.category,
+      pageUrl: play.pageURL,
+    });
   }
-  await page.close();
-  return plays;
 };
 
 const getPlayInfo = async (url, logger, page) => {

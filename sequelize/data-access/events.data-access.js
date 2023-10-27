@@ -1,11 +1,59 @@
+const { Op } = require('sequelize');
 const { EventModel } = require('../models');
 
 const createEvent = async (event) => {
   return EventModel.create(event);
 }
 
-const getEvents = async ({ limit, offset }) => {
+const getEvents = async ({
+  limit,
+  offset,
+  title,
+  category,
+  location,
+}) => {
   return EventModel.findAll({
+    select: [
+      'title',
+      'category',
+      'location',
+      'pageUrl',
+      'prices',
+      'dates',
+      'synopsis',
+    ],
+    where: {
+      ...(title && {
+        title: {
+          [Op.iLike]: `%${title}%`,
+        }
+      }),
+      ...(category && {
+        category: {
+          [Op.iLike]: `%${category}%`,
+        }
+      }),
+      ...(location && {
+        location: {
+          [Op.iLike]: `%${location}%`,
+        }
+      }),
+      // ...(priceBottomLimit && priceTopLimit && {
+      //   prices: {
+      //     [Op.between]: [priceBottomLimit, priceTopLimit],
+      //   },
+      // }),
+      // ...(priceBottomLimit && {
+      //   prices: {
+      //     [Op.gte]: priceBottomLimit,
+      //   },
+      // }),
+      // ...(priceTopLimit && {
+      //   prices: {
+      //     [Op.lte]: priceTopLimit,
+      //   },
+      // }),
+    },
     limit,
     offset,
   });
@@ -17,31 +65,8 @@ const getEvent = async (where) => {
   });
 }
 
-const getEventById = async (id) => {
-  return EventModel.findByPk(id);
-}
-
-const updateEvent = async (id, event) => {
-  return EventModel.update(event, {
-    where: {
-      id,
-    },
-  });
-}
-
-const deleteEvent = async (id) => {
-  return EventModel.destroy({
-    where: {
-      id,
-    },
-  });
-}
-
 module.exports = {
   createEvent,
   getEvents,
   getEvent,
-  getEventById,
-  updateEvent,
-  deleteEvent,
 };

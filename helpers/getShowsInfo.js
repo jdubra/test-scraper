@@ -1,4 +1,5 @@
 const getLogger = require('../utils/logger');
+const parseDates = require('./parseDates');
 
 const getShowsInfo = async (url, browser, instanceId = 0) => {
   const logger = getLogger(`GETSHOW - ${instanceId}`);
@@ -9,7 +10,7 @@ const getShowsInfo = async (url, browser, instanceId = 0) => {
   await page.waitForSelector('.view-content');
   await page.waitForTimeout(3000);
   logger.log(`Start scraping ${url}`);
-  const shows = await page.evaluate(() => {
+  const showsNoDates = await page.evaluate(() => {
     const showDivs = document.querySelectorAll('.listadoobras.row');
     const shows = [];
     for(const showDiv of [...showDivs]) {
@@ -36,6 +37,7 @@ const getShowsInfo = async (url, browser, instanceId = 0) => {
     }
     return shows;
   });
+  const shows = showsNoDates.map((show) => ({...show, dates: parseDates(show.dates, 'colon')}))
   logger.log('Extracted all shows from page', shows);
   await page.close();
 

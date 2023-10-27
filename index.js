@@ -1,3 +1,6 @@
+require('./sequelize');
+require('./api');
+
 const browserObject = require('./browser');
 const scraperController = require('./controllers/pageController');
 

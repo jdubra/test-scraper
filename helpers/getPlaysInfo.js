@@ -1,5 +1,6 @@
 const getLogger = require('../utils/logger');
 const parseDates = require('./parseDates');
+const { EventsService } = require('../api/services');
 
 const getPlaysInfo = async (urls, browser, instanceId = 0) => {
   const logger = getLogger(`GETPLAY - ${instanceId}`);
@@ -8,6 +9,15 @@ const getPlaysInfo = async (urls, browser, instanceId = 0) => {
   const newPage = await browser.newPage();
   for(const playURL of urls) {
     const play = await getPlayInfo(playURL, newPage);
+    await EventsService.createEvent({
+      title: play.title,
+      location: play.theater,
+      synopsis: play.description,
+      dates: play.dates,
+      prices: play.prices,
+      category: play.category,
+      pageUrl: play.pageURL,
+    });
     logger.log('Play info extracted');
     logger.log(play);
     plays.push(play);

@@ -1,5 +1,6 @@
 const logger = require('../utils/logger')('PAGE SCRAPER');
 const getShowsInfo = require('../helpers/getShowsInfo');
+const { EventsService } = require('../api/services');
 
 const scraperObject = {
   url: 'https://teatrocolon.org.ar/es/temporada',
@@ -19,6 +20,17 @@ const scraperObject = {
     for(const paginationPage of pages) {
       logger.log(`Start scraping ${paginationPage}`);
       const showsFragment = await getShowsInfo(paginationPage, browser);
+      for (const show of showsFragment) {
+        await EventsService.createEvent({
+          title: show.title,
+          location: show.theater,
+          synopsis: show.description,
+          dates: [show.dates],
+          prices: show.prices,
+          category: show.category,
+          pageUrl: show.pageURL,
+        });
+      }
       showsFragments.push(showsFragment);
     }
 

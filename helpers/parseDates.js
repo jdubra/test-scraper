@@ -1,11 +1,16 @@
-const monthMapPlateanet = {
-  "ENE": 0, "FEB": 1, "MAR": 2, "ABR": 3, "MAY": 4, "JUN": 5,
-  "JUL": 6, "AGO": 7, "SEP": 8, "OCT": 9, "NOV": 10, "DIC": 11
-};
-
 const monthMapColon = {
-  "ENERO": 0, "FEBRERO": 1, "MARZO": 2, "ABRIL": 3, "MAYO": 4, "JUNIO": 5,
-  "JULIO": 6, "AGOSTO": 7, "SEPTIEMBRE": 8, "OCTUBRE": 9, "NOVIEMBRE": 10, "DICIEMBRE": 11
+  "ENERO": 0, "JANUARY": 0,
+  "FEBRERO": 1, "FEBRUARY": 1,
+  "MARZO": 2, "MARCH": 2,
+  "ABRIL": 3, "APRIL":3,
+  "MAYO": 4, "MAY": 4,
+  "JUNIO": 5, "JUNE": 5,
+  "JULIO": 6, "JULY": 6,
+  "AGOSTO": 7, "AUGUST": 7,
+  "SEPTIEMBRE": 8, "SEPTEMBER": 8,
+  "OCTUBRE": 9, "OCTOBER": 9,
+  "NOVIEMBRE": 10, "NOVEMBER": 10,
+  "DICIEMBRE": 11, "DECEMBER": 11
 }
 
 function removeDuplicates(arr) {
@@ -20,10 +25,11 @@ const parseDatesColon = (dateString) => {
   const splitByMonth = dateString.split("/");
   const dates = []
   splitByMonth.forEach(element => {
-    const allMonthDate = element.split(" ");
+    const allMonthDate = element.split(" ").filter((el) => el !== "");
     const month = monthMapColon[allMonthDate[0]];
     const days = [...allMonthDate].slice(1);
-    days.forEach(day => {
+    days.forEach(unparsedDay => {
+      const day = unparsedDay.replaceAll(",", "");
       const date = new Date();
       date.setFullYear(new Date().getFullYear());
       date.setDate(day);
@@ -34,14 +40,15 @@ const parseDatesColon = (dateString) => {
   return dates;
 }
 
-const parseDatesPlateanet = (dateStringArray) => {
+const parseDatesNacion = (dateStringArray) => {
   const dates = []
   dateStringArray.map((dateString) => {
-    const parts = dateString.split(" ");
-    const day = parseInt(parts[1]);
-    const month = monthMapPlateanet[parts[2]];
+    const parts = dateString.split(".");
+    const day = parseInt(parts[0]);
+    const month = parts[1] - 1;
+    const year = parts[2];
     const date = new Date();
-    date.setFullYear(new Date().getFullYear());
+    date.setFullYear(year);
     date.setMonth(month);
     date.setDate(day);
     dates.push(date)
@@ -52,8 +59,8 @@ const parseDatesPlateanet = (dateStringArray) => {
 const parseDates = (dates, source) => {
   if (source === 'colon') {
     return removeDuplicates(parseDatesColon(dates))
-  } else if (source === 'plateanet') {
-    return removeDuplicates(parseDatesPlateanet(dates))
+  } else if (source === 'nacion') {
+    return removeDuplicates(parseDatesNacion(dates))
   }
 }
 

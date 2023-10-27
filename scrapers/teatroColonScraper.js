@@ -24,8 +24,6 @@ const scraperObject = {
 
     const shows = showsFragments.flat();
     logger.log('Extracted all shows', shows);
-
-    await Promise.all(workers);
   }
 };
 

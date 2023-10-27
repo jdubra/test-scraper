@@ -2,147 +2,82 @@ const getLogger = require('../utils/logger');
 const parseDates = require('./parseDates');
 
 const getPlaysInfo = async (urls, browser, instanceId = 0) => {
-  const plays = [];
-  const page = await browser.newPage();
-  page.setDefaultNavigationTimeout(0);
   const logger = getLogger(`GETPLAY - ${instanceId}`);
-  logger.log(`Start scraping ${urls.length} URLS`);
-  for (let url of urls) {
-    play = await getPlayInfo(url, logger, page);
+  const plays = [];
+  logger.log('Start scraping...');
+  const newPage = await browser.newPage();
+  for(const playURL of urls) {
+    const play = await getPlayInfo(playURL, newPage);
+    logger.log('Play info extracted');
+    logger.log(play);
     plays.push(play);
   }
-  await page.close();
+  await newPage.close();
   return plays;
 };
 
-const getPlayInfo = async (url, logger, page) => {
-  const pageURL = `https://www.plateanet.com${url}`;
-  logger.log('Extracting info from:', pageURL);
-  await page.goto(pageURL);
-  await page.waitForSelector('#img2sala', { timeout: 0 });
-  await page.waitForTimeout(3000);
-  logger.log('Page done loading');
-
-  await page.waitForSelector('[class*="titulo"]', { timeout: 0 });
+const getPlayInfo = async (url, page) => {
+  await page.goto(url);
+  await page.waitForSelector('.header__titulo', { timeout: 0 });
   const title = await page.evaluate(() => {
-    const titleElement = document.querySelector('[class*="titulo"]');
-    return titleElement ? titleElement.innerText : '';
+    const playInfoContainer = document.querySelector('.header__titulo');
+    const titleElement = playInfoContainer.getElementsByTagName('h1')[0]
+    return titleElement ? titleElement.innerText : 'No disponible';
   });
-
-  await page.waitForSelector('[class*="subtitulo"]', { timeout: 0 });
-  const theater = await page.evaluate(() => {
-    const theaterElement = document.querySelector('[class*="subtitulo"]');
-    return theaterElement ? theaterElement.innerText : '';
-  });
-  
-  await page.waitForSelector('b', { timeout: 0 });
-  const description = await page.evaluate(() => {
-    const descriptionTitleElements = document.querySelectorAll('b');
-    const descriptionTitle = [...descriptionTitleElements].find((element) => {
-      return element.innerText === 'Sinopsis';
-    });
-    if(descriptionTitle) {
-      if (
-        descriptionTitle &&
-        descriptionTitle.parentElement.parentNode.getElementsByTagName('span')
-          .length > 1
-      ) {
-        descriptionTitle.parentElement.parentNode
-          .getElementsByTagName('span')[1]
-          .childNodes[1].click();
-      }
-      return descriptionTitle
-        ? descriptionTitle.parentElement.parentNode.getElementsByTagName('span')[0]
-            .innerHTML
-        : '';
-    }
-    return 'No disponible';
-  });
-
-  await page.waitForSelector('img[class*="imgobradesktop"]', { timeout: 0 });
-  const imageURL = await page.evaluate(() => {
-    const imageElement = document.querySelector('img[class*="imgobradesktop"]');
-    return imageElement ? imageElement.src : '';
-  });
-
-  const prices = await page.evaluate(() => {
-    const playItemsElements = document.querySelectorAll(
-      'p[class*="items-obra-p"]',
-    );
-    const pricesTitle = [...playItemsElements].find(
-      (element) => element.innerText === 'Precios',
-      );
-    if (pricesTitle) {
-      let siblingElements = pricesTitle.parentNode.getElementsByTagName('p');
-      return siblingElements[1].innerText;
-    }
-    return 'No disponible';
-  });
-
-  await page.waitForSelector('p[class*="items-obra-p"]', { timeout: 0 });
-  const category = await page.evaluate(() => {
-    const playItemsElements = document.querySelectorAll(
-      'p[class*="items-obra-p"]',
-    );
-    const categoryTitle = [...playItemsElements].find(
-      (element) => element.innerText === 'Categoría',
-    );
-    if (categoryTitle) {
-      let siblingElements = categoryTitle.parentNode.getElementsByTagName('p');
-      return siblingElements[1].innerText;
-    } else {
-      return 'No disponible';
-    }
-  });
-
-  await page.waitForSelector('p[class*="items-obra-p"]', { timeout: 0 });
+  await page.waitForSelector('.ficha__descrip__items', { timeout: 0 });
   const unparsedDates = await page.evaluate(() => {
-    const playItemsElements = document.querySelectorAll(
-      'p[class*="items-obra-p"]',
-    );
-    const datesTitle = [...playItemsElements].find(
-      (element) =>
-        element.innerText === 'Días de función' ||
-        element.innerText === 'Día de función',
-    );
-    if(datesTitle) {
-      let siblingElements = datesTitle.parentNode.getElementsByTagName('p');
-      if ([...siblingElements].length === 1) {
-        siblingElements = datesTitle.parentNode.getElementsByTagName('div');
-        const hoverLink = siblingElements[2];
-        event = new MouseEvent('mouseenter');
-        hoverLink.dispatchEvent(event);
-        const datesString = document.querySelector(
-          'div[class*="dias__funcion__detalle"]',
-        ).innerText;
-        return datesString.split('\n');
-      } else {
-        return siblingElements[1].innerText.split('\n');
-      }
-    } else {
-      return []
+    const datesContainer = document.querySelector('.ficha__descrip__items');
+    if (datesContainer) {
+      const datesElements = datesContainer.getElementsByTagName('dd')[0];
+      return datesElements ? datesElements.innerText.split('\n') : [];      
     }
-  });
-  const dates = parseDates(unparsedDates, 'plateanet');
-
-  logger.log('Extracted info');
-  logger.log({
-    title,
-    theater,
-    description,
-    imageURL,
-    dates,
-    prices,
-    category,
-    pageURL,
-  });
-
+    return [];
+  })
+  const dates = parseDates(unparsedDates, 'nacion');
+  const theater = await page.evaluate(() => {
+    const theaterContainer = document.querySelector('.contacto__sala__detalle');
+    if (theaterContainer) {
+      const theaterElement = theaterContainer.getElementsByTagName('h4')[0];
+      return theaterElement ? theaterElement.innerText : 'No disponible';
+    }
+    return 'No disponible';
+  })
+  const description = await page.evaluate(() => {
+    const descriptionContainer = document.querySelector('.ficha__descrip__sinopsis');
+    if (descriptionContainer) {
+      const descriptionElement = descriptionContainer.getElementsByTagName('dd')[0];
+      return descriptionElement ? descriptionElement.innerText : 'No disponible';
+    }
+    return 'No disponible';
+  })
+  const imageURL = await page.evaluate(() => {
+    const imageContainer = document.querySelector('.ficha');
+    if (imageContainer) {
+      const imageElement = imageContainer.getElementsByTagName('img')[0];
+      return imageElement ? imageElement.src : 'No disponible';
+    }
+    return 'No disponible';
+  })
+  const {pricesString, newUrl} = await page.evaluate(() => {
+    const pricesContainer = document.querySelector('.funcionesObra');
+    if(pricesContainer) {
+      const pricesAndButton = pricesContainer.getElementsByTagName('dd')[0];
+      const pricesString = pricesAndButton ? pricesAndButton.innerText : 'No disponible';
+      const newUrl = pricesAndButton ? pricesAndButton.getElementsByTagName('a')[0].href : 'No disponible';
+      return {pricesString, newUrl};
+    }
+    return {pricesString: 'No disponible', newUrl: 'No disponible'};
+  })
+  const regexPattern = /\$\d+/;
+  const prices = pricesString.match(regexPattern) ? pricesString.match(regexPattern)[0] : 'Regex no anduvo :(';
+  const pageURL = newUrl === 'No disponible' ? url : newUrl;
+  const category = 'Teatro';
   return {
     title,
+    dates,
     theater,
     description,
     imageURL,
-    dates,
     prices,
     category,
     pageURL,

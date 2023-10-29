@@ -1,17 +1,15 @@
 const { Op } = require('sequelize');
 const { EventModel } = require('../models');
+const getLogger = require('../../utils/logger');
+
+const logger = getLogger('EVENTS DA');
 
 const createEvent = async (event) => {
+  logger.log({ event });
   return EventModel.create(event);
-}
+};
 
-const getEvents = async ({
-  limit,
-  offset,
-  title,
-  category,
-  location,
-}) => {
+const getEvents = async ({ limit, offset, title, category, location }) => {
   return EventModel.findAll({
     select: [
       'title',
@@ -26,17 +24,17 @@ const getEvents = async ({
       ...(title && {
         title: {
           [Op.iLike]: `%${title}%`,
-        }
+        },
       }),
       ...(category && {
         category: {
           [Op.iLike]: `%${category}%`,
-        }
+        },
       }),
       ...(location && {
         location: {
           [Op.iLike]: `%${location}%`,
-        }
+        },
       }),
       // ...(priceBottomLimit && priceTopLimit && {
       //   prices: {
@@ -57,13 +55,13 @@ const getEvents = async ({
     limit,
     offset,
   });
-}
+};
 
 const getEvent = async (where) => {
   return EventModel.findOne({
     where,
   });
-}
+};
 
 module.exports = {
   createEvent,

@@ -15,9 +15,9 @@ const scraperObject = {
     logger.log('Selector found, getting all play pages...');
     const pages = await page.evaluate(() => {
       const pages = document.querySelectorAll('.pager__item');
-      return [...pages].slice(0, -2).map((e) => e.childNodes[1].href)
+      return [...pages].slice(0, -2).map((e) => e.childNodes[1].href);
     });
-    for(const paginationPage of pages) {
+    for (const paginationPage of pages) {
       logger.log(`Start scraping ${paginationPage}`);
       const showsFragment = await getShowsInfo(paginationPage, browser);
       for (const show of showsFragment) {
@@ -25,7 +25,7 @@ const scraperObject = {
           title: show.title,
           location: show.theater,
           synopsis: show.description,
-          dates: [show.dates],
+          dates: show.dates,
           prices: show.prices,
           category: show.category,
           pageUrl: show.pageURL,
@@ -36,7 +36,7 @@ const scraperObject = {
 
     const shows = showsFragments.flat();
     logger.log('Extracted all shows', shows);
-  }
+  },
 };
 
 module.exports = scraperObject;

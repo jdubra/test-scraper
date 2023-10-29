@@ -7,7 +7,7 @@ const getPlaysInfo = async (urls, browser, instanceId = 0) => {
   const plays = [];
   logger.log('Start scraping...');
   const newPage = await browser.newPage();
-  for(const playURL of urls) {
+  for (const playURL of urls) {
     const play = await getPlayInfo(playURL, newPage);
     await EventsService.createEvent({
       title: play.title,
@@ -31,7 +31,7 @@ const getPlayInfo = async (url, page) => {
   await page.waitForSelector('.header__titulo', { timeout: 0 });
   const title = await page.evaluate(() => {
     const playInfoContainer = document.querySelector('.header__titulo');
-    const titleElement = playInfoContainer.getElementsByTagName('h1')[0]
+    const titleElement = playInfoContainer.getElementsByTagName('h1')[0];
     return titleElement ? titleElement.innerText : 'No disponible';
   });
   await page.waitForSelector('.ficha__descrip__items', { timeout: 0 });
@@ -39,10 +39,10 @@ const getPlayInfo = async (url, page) => {
     const datesContainer = document.querySelector('.ficha__descrip__items');
     if (datesContainer) {
       const datesElements = datesContainer.getElementsByTagName('dd')[0];
-      return datesElements ? datesElements.innerText.split('\n') : [];      
+      return datesElements ? datesElements.innerText.split('\n') : [];
     }
     return [];
-  })
+  });
   const dates = parseDates(unparsedDates, 'nacion');
   const theater = await page.evaluate(() => {
     const theaterContainer = document.querySelector('.contacto__sala__detalle');
@@ -51,15 +51,20 @@ const getPlayInfo = async (url, page) => {
       return theaterElement ? theaterElement.innerText : 'No disponible';
     }
     return 'No disponible';
-  })
+  });
   const description = await page.evaluate(() => {
-    const descriptionContainer = document.querySelector('.ficha__descrip__sinopsis');
+    const descriptionContainer = document.querySelector(
+      '.ficha__descrip__sinopsis',
+    );
     if (descriptionContainer) {
-      const descriptionElement = descriptionContainer.getElementsByTagName('dd')[0];
-      return descriptionElement ? descriptionElement.innerText : 'No disponible';
+      const descriptionElement =
+        descriptionContainer.getElementsByTagName('dd')[0];
+      return descriptionElement
+        ? descriptionElement.innerText
+        : 'No disponible';
     }
     return 'No disponible';
-  })
+  });
   const imageURL = await page.evaluate(() => {
     const imageContainer = document.querySelector('.ficha');
     if (imageContainer) {
@@ -67,19 +72,25 @@ const getPlayInfo = async (url, page) => {
       return imageElement ? imageElement.src : 'No disponible';
     }
     return 'No disponible';
-  })
-  const {pricesString, newUrl} = await page.evaluate(() => {
+  });
+  const { pricesString, newUrl } = await page.evaluate(() => {
     const pricesContainer = document.querySelector('.funcionesObra');
-    if(pricesContainer) {
+    if (pricesContainer) {
       const pricesAndButton = pricesContainer.getElementsByTagName('dd')[0];
-      const pricesString = pricesAndButton ? pricesAndButton.innerText : 'No disponible';
-      const newUrl = pricesAndButton ? pricesAndButton.getElementsByTagName('a')[0].href : 'No disponible';
-      return {pricesString, newUrl};
+      const pricesString = pricesAndButton
+        ? pricesAndButton.innerText
+        : 'No disponible';
+      const newUrl = pricesAndButton
+        ? pricesAndButton.getElementsByTagName('a')[0].href
+        : 'No disponible';
+      return { pricesString, newUrl };
     }
-    return {pricesString: 'No disponible', newUrl: 'No disponible'};
-  })
+    return { pricesString: 'No disponible', newUrl: 'No disponible' };
+  });
   const regexPattern = /\$\d+/;
-  const prices = pricesString.match(regexPattern) ? pricesString.match(regexPattern)[0] : 'Regex no anduvo :(';
+  const prices = pricesString.match(regexPattern)
+    ? pricesString.match(regexPattern)[0]
+    : 'No disponible';
   const pageURL = newUrl === 'No disponible' ? url : newUrl;
   const category = 'Teatro';
   return {

@@ -1,3 +1,7 @@
 export default function Layout({ children }) {
-  return <div className="p-8">{children}</div>;
+  return (
+    <>
+      <div className="p-8">{children}</div>
+    </>
+  );
 }

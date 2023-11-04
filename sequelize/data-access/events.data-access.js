@@ -9,8 +9,16 @@ const createEvent = async (event) => {
   return EventModel.create(event);
 };
 
-const getEvents = async ({ limit, offset, title, category, location }) => {
-  return EventModel.findAll({
+const getEvents = async ({
+  limit,
+  offset,
+  title,
+  category,
+  location,
+  sortBy,
+  sortDirection,
+}) =>
+  EventModel.findAndCountAll({
     select: [
       'title',
       'category',
@@ -52,10 +60,10 @@ const getEvents = async ({ limit, offset, title, category, location }) => {
       //   },
       // }),
     },
+    order: [[sortBy, sortDirection]],
     limit,
     offset,
   });
-};
 
 const getEvent = async (where) => {
   return EventModel.findOne({

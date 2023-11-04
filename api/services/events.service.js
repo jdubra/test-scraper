@@ -7,7 +7,9 @@ const getEvents = ({
   // priceBottomLimit,
   // priceTopLimit,
   limit,
-  offset
+  offset,
+  sort_by: sortBy,
+  sort_direction: sortDirection,
 }) => {
   return EventsDataAccess.getEvents({
     title,
@@ -16,7 +18,9 @@ const getEvents = ({
     // priceBottomLimit: priceBottomLimit ? parseInt(priceBottomLimit) : 10,
     // priceTopLimit: priceTopLimit ? parseInt(priceTopLimit) : 10,
     limit: limit ? parseInt(limit) : 10,
-    offset: (offset || offset == 0) ? parseInt(offset) : 0,
+    offset: offset || offset == 0 ? parseInt(offset) : 0,
+    sortBy,
+    sortDirection,
   });
 };
 
@@ -25,11 +29,13 @@ const getEvent = ({ id }) => {
 };
 
 const createEvent = async (event) => {
-  const existingEvent = await EventsDataAccess.getEvent({ pageUrl: event.pageUrl });
+  const existingEvent = await EventsDataAccess.getEvent({
+    pageUrl: event.pageUrl,
+  });
   if (!existingEvent) {
     return EventsDataAccess.createEvent(event);
   }
-}
+};
 
 module.exports = {
   getEvents,

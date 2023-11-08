@@ -79,18 +79,18 @@ const getPlayInfo = async (url, page) => {
       const pricesAndButton = pricesContainer.getElementsByTagName('dd')[0];
       const pricesString = pricesAndButton
         ? pricesAndButton.innerText
-        : 'No disponible';
+        : null;
       const newUrl = pricesAndButton
         ? pricesAndButton.getElementsByTagName('a')[0].href
         : 'No disponible';
       return { pricesString, newUrl };
     }
-    return { pricesString: 'No disponible', newUrl: 'No disponible' };
+    return { pricesString: null, newUrl: 'No disponible' };
   });
   const regexPattern = /\$\d+/;
-  const prices = pricesString.match(regexPattern)
+  const prices = pricesString && pricesString.match(regexPattern)
     ? pricesString.match(regexPattern)[0]
-    : 'No disponible';
+    : null;
   const pageURL = newUrl === 'No disponible' ? url : newUrl;
   const category = 'Teatro';
   return {

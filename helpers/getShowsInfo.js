@@ -23,7 +23,7 @@ const getShowsInfo = async (url, browser, instanceId = 0) => {
       console.log(showDiv.getElementsByClassName("btn-buytickets"))
       const buyButton = showDiv.getElementsByClassName("btn-buytickets")
       const pageURL = buyButton.length > 0 ? buyButton[0].href : 'No disponible'
-      const prices = 'No disponible'
+      const prices = null;
       shows.push({
         title: title,
         category: category,

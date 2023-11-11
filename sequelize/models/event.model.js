@@ -7,7 +7,7 @@ const Event = sequelize.define(
     title: DataTypes.STRING,
     location: DataTypes.STRING,
     synopsis: DataTypes.TEXT,
-    dates: DataTypes.ARRAY(DataTypes.STRING),
+    dates: DataTypes.ARRAY(DataTypes.DATE),
     prices: DataTypes.STRING,
     category: DataTypes.STRING,
     pageUrl: {

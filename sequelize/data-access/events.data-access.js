@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+const { Op, literal } = require('sequelize');
 const { EventModel } = require('../models');
 const getLogger = require('../../utils/logger');
 
@@ -9,9 +9,52 @@ const createEvent = async (event) => {
   return EventModel.create(event);
 };
 
-const getEvents = async ({ limit, offset, title, category, location }) => {
-  return EventModel.findAll({
-    select: [
+const getEvents = async ({
+  limit,
+  offset,
+  title,
+  category,
+  location,
+  sortBy,
+  sortDirection,
+  from,
+  to,
+}) => {
+  console.log(sortBy, sortDirection);
+  const dateConditions = [];
+  const conditions = {
+    ...(title && {
+      title: {
+        [Op.iLike]: `%${title}%`,
+      },
+    }),
+    ...(category && {
+      category: {
+        [Op.iLike]: `%${category}%`,
+      },
+    }),
+    ...(location && {
+      location: {
+        [Op.iLike]: `%${location}%`,
+      },
+    }),
+  }
+  if (from) {
+    dateConditions.push(literal(`EXISTS (
+      SELECT 1
+      FROM unnest(dates) AS date_col
+      WHERE date_col >= '${from}'
+    )`),);
+  }
+  if (to) {
+    dateConditions.push(literal(`EXISTS (
+      SELECT 1
+      FROM unnest(dates) AS date_col
+      WHERE date_col <= '${to}'
+    )`),);
+  }
+  return EventModel.findAndCountAll({
+    attributes: [
       'title',
       'category',
       'location',
@@ -20,42 +63,20 @@ const getEvents = async ({ limit, offset, title, category, location }) => {
       'dates',
       'synopsis',
     ],
-    where: {
-      ...(title && {
-        title: {
-          [Op.iLike]: `%${title}%`,
-        },
-      }),
-      ...(category && {
-        category: {
-          [Op.iLike]: `%${category}%`,
-        },
-      }),
-      ...(location && {
-        location: {
-          [Op.iLike]: `%${location}%`,
-        },
-      }),
-      // ...(priceBottomLimit && priceTopLimit && {
-      //   prices: {
-      //     [Op.between]: [priceBottomLimit, priceTopLimit],
-      //   },
-      // }),
-      // ...(priceBottomLimit && {
-      //   prices: {
-      //     [Op.gte]: priceBottomLimit,
-      //   },
-      // }),
-      // ...(priceTopLimit && {
-      //   prices: {
-      //     [Op.lte]: priceTopLimit,
-      //   },
-      // }),
-    },
+    ...(from || to ? {
+      where: {
+        [Op.and]: [...dateConditions, conditions],
+      },
+    } : {
+      where: conditions,
+    }),
+    ...(sortBy && {
+      order: [[sortBy, sortDirection || 'ASC']],
+    }),
     limit,
     offset,
   });
-};
+}
 
 const getEvent = async (where) => {
   return EventModel.findOne({

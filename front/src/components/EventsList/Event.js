@@ -23,7 +23,7 @@ export default function Event({
 }) {
   return (
     <Row>
-      <Cell className="bold text-blue-500">{title}</Cell>
+      <Cell className="bold text-black">{title}</Cell>
       <Cell>{synopsis.length > 0 ? synopsis : notAvailable}</Cell>
       <Cell className="text-center capitalize">
         {category?.toLowerCase() ?? notAvailable}

@@ -20,7 +20,6 @@ const getEvents = async ({
   from,
   to,
 }) => {
-  console.log(sortBy, sortDirection);
   const dateConditions = [];
   const conditions = {
     ...(title && {
@@ -38,20 +37,24 @@ const getEvents = async ({
         [Op.iLike]: `%${location}%`,
       },
     }),
-  }
+  };
   if (from) {
-    dateConditions.push(literal(`EXISTS (
+    dateConditions.push(
+      literal(`EXISTS (
       SELECT 1
       FROM unnest(dates) AS date_col
       WHERE date_col >= '${from}'
-    )`),);
+    )`),
+    );
   }
   if (to) {
-    dateConditions.push(literal(`EXISTS (
+    dateConditions.push(
+      literal(`EXISTS (
       SELECT 1
       FROM unnest(dates) AS date_col
       WHERE date_col <= '${to}'
-    )`),);
+    )`),
+    );
   }
   return EventModel.findAndCountAll({
     attributes: [
@@ -63,20 +66,22 @@ const getEvents = async ({
       'dates',
       'synopsis',
     ],
-    ...(from || to ? {
-      where: {
-        [Op.and]: [...dateConditions, conditions],
-      },
-    } : {
-      where: conditions,
-    }),
+    ...(from || to
+      ? {
+          where: {
+            [Op.and]: [...dateConditions, conditions],
+          },
+        }
+      : {
+          where: conditions,
+        }),
     ...(sortBy && {
-      order: [[sortBy, sortDirection || 'ASC']],
+      order: [[sortBy, sortDirection ?? 'ASC']],
     }),
     limit,
     offset,
   });
-}
+};
 
 const getEvent = async (where) => {
   return EventModel.findOne({

@@ -12,10 +12,13 @@ const Event = sequelize.define(
     category: DataTypes.STRING,
     pageUrl: {
       type: DataTypes.STRING,
-      unique: true,
     },
   },
-  {},
+  {
+    indexes: [
+      { unique: true, fields: ['title', 'pageUrl', 'location', 'synopsis'] },
+    ],
+  },
 );
 
 module.exports = Event;

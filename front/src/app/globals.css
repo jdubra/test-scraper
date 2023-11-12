@@ -17,11 +17,13 @@
 }
 
 body {
+  height: 100vh;
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    0deg,
+    lightblue 33%,
+    white 33%,
+    white 66%,
+    lightblue 66%
+  )
 }

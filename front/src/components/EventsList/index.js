@@ -4,7 +4,7 @@ import { Table } from 'flowbite-react';
 import Event from './Event';
 import './index.css';
 
-const { Head, HeadCell, Body } = Table;
+const { Head, HeadCell, Body, Row, Cell } = Table;
 
 export default function EventsList({ events, onSort, sortBy, sortDirection }) {
   const icon = (
@@ -15,7 +15,7 @@ export default function EventsList({ events, onSort, sortBy, sortDirection }) {
 
   return (
     <Table striped hoverable>
-      <Head>
+      <Head className="w-full sticky top-0">
         <HeadCell
           className="text-left cursor-pointer"
           onClick={() => onSort?.('title')}
@@ -35,24 +35,28 @@ export default function EventsList({ events, onSort, sortBy, sortDirection }) {
         >
           Teatro {sortBy === 'location' && icon}
         </HeadCell>
-        <HeadCell
-          className="text-center cursor-pointer"
-          onClick={() => onSort?.('date')}
-        >
+        <HeadCell className="text-center">
           Fechas {sortBy === 'date' && icon}
         </HeadCell>
         <HeadCell
           className="text-center cursor-pointer"
           onClick={() => onSort?.('price')}
         >
-          Precios {sortBy === 'price' && icon}
+          Precios desde {sortBy === 'price' && icon}
         </HeadCell>
         <HeadCell>Entradas</HeadCell>
       </Head>
       <Body>
         {events.map(({ id, ...event }, index) => (
-          <Event key={id} data={event} evenRow={index % 2 === 0} />
+          <Event key={id} data={event} />
         ))}
+        {events.length === 0 && (
+          <Row>
+            <Cell className="p-8 text-center text-lg" colSpan={7}>
+              No hay resultados para mostrar, intenta cambiar tus filtros
+            </Cell>
+          </Row>
+        )}
       </Body>
     </Table>
   );

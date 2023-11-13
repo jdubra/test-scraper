@@ -43,12 +43,20 @@ const createEvent = async (event) => {
     logger.log(`Creating ${event.title} Event`);
     return EventsDataAccess.createEvent(event);
   } else {
-    logger.log(`Skipping ${event.title} Event`);
+    logger.log(`Updating ${event.title} Event`);
+    return EventsDataAccess.updateEvent(event, existingEvent);
   }
 };
+
+const removeOldEvents = async () => {
+  const oldEvents = await EventsDataAccess.getOldEvents();
+  logger.log(`Removing ${oldEvents.length} old events`);
+  return EventsDataAccess.removeEvents(oldEvents);
+}
 
 module.exports = {
   getEvents,
   getEvent,
   createEvent,
+  removeOldEvents,
 };

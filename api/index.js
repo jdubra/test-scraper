@@ -1,4 +1,5 @@
 require('../sequelize');
+require('./crons');
 
 const logger = require('morgan');
 const express = require('express');

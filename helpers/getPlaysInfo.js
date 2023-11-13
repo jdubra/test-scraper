@@ -87,9 +87,9 @@ const getPlayInfo = async (url, page) => {
     }
     return { pricesString: null, newUrl: 'No disponible' };
   });
-  const regexPattern = /\$\d+/;
+  const regexPattern = /\d+/;
   const prices = pricesString && pricesString.match(regexPattern)
-    ? pricesString.match(regexPattern)[0]
+    ? Number(pricesString.match(regexPattern)[0])
     : null;
   const pageURL = newUrl === 'No disponible' ? url : newUrl;
   const category = 'Teatro';

@@ -34,6 +34,9 @@ const getEvent = ({ id }) => {
 const createEvent = async (event) => {
   const existingEvent = await EventsDataAccess.getEvent({
     pageUrl: event.pageUrl,
+    title: event.title,
+    location: event.location,
+    synopsis: event.synopsis,
   });
 
   if (!existingEvent) {

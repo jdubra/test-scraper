@@ -38,7 +38,7 @@ export default async function EventsPage({ searchParams }) {
     console.log({ requestUrl });
     const response = await fetch(requestUrl, { cache: 'no-cache' });
     const { events, totalCount } = await response.json();
-
+    console.log('events', events);
     return (
       <>
         <EventsListPage events={events} totalCount={totalCount} />

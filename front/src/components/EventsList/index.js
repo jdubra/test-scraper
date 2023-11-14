@@ -40,9 +40,9 @@ export default function EventsList({ events, onSort, sortBy, sortDirection }) {
         </HeadCell>
         <HeadCell
           className="text-center cursor-pointer"
-          onClick={() => onSort?.('price')}
+          onClick={() => onSort?.('prices')}
         >
-          Precios desde {sortBy === 'price' && icon}
+          Precios desde {sortBy === 'prices' && icon}
         </HeadCell>
         <HeadCell>Entradas</HeadCell>
       </Head>

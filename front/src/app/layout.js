@@ -4,7 +4,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Cartelera Asombrosa',
+  title: 'EspectaculArgentina',
   description: 'Equipo de Alexis, Julieta, Rama, y Mauro',
 };
 
